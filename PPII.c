@@ -54,6 +54,8 @@ char nomes_servicos[3][30] = {"Banho", "Tosa", "Consulta"};
 
 float precos_servicos[3] = {50.00, 80.00, 100.00};
 
+
+// Função para calcular o total dos serviços registrados no atendimento
 float calcularServicos(Atendimento *a) {
     float total_servicos = 0.0;
     for (int i = 0; i < 3; i++) {
@@ -63,6 +65,8 @@ float calcularServicos(Atendimento *a) {
     }
     return total_servicos;
 }
+
+// Função para limpar os dados do atendimento   
 void limparAtendimento(Atendimento *a) {
     a->cliente.cadastrado = 0;
     a->pet.cadastrado = 0;
@@ -70,15 +74,17 @@ void limparAtendimento(Atendimento *a) {
     a->total_geral = 0.0;
 }
 
+
+// Função para realizar o login do usuário
 int logar(char usuario[]){
-    int senha[10];
+    char senha[10];
     int tentativa;
     for(tentativa = 1; tentativa <= 3; tentativa++){
         printf("Usuario: \n");
         scanf("%s[^\n]", usuario);
         printf("Senha: \n");
-        scanf("%d", senha);
-        if(strcmp(usuario, "admin") == 0 && strcmp(senha, 1234) == 0){
+        scanf("%s", senha);
+        if(strcmp(usuario, "admin") == 0 && strcmp(senha, "1234") == 0){
             return 1;
         
         }
@@ -87,6 +93,8 @@ int logar(char usuario[]){
     }    
 }
 
+
+// Função para registrar um item (serviço ou produto) no atendimento
 int registrarItem(Atendimento *a, char descricao[], int quantidade, float valor) {
     if (a->total_itens >= MAX_ITENS) {
         printf("\n[ERRO] Limite de itens do atendimento atingido!\n");
@@ -101,6 +109,7 @@ int registrarItem(Atendimento *a, char descricao[], int quantidade, float valor)
 }
 
 
+// Função para exibir o menu de cadastros
 void menuCadastros(Atendimento *a) {
     int opcao;
     do {
@@ -160,6 +169,8 @@ void menuCadastros(Atendimento *a) {
     } while (opcao != 0);
 }
 
+
+// Função para registrar serviços no atendimento
 void serviços(Atendimento *a) {
     int servico;
     printf("\n--------- SERVICOS ----------\n");
@@ -181,6 +192,8 @@ void serviços(Atendimento *a) {
     }
 }
 
+
+// Função para registrar produtos no atendimento
 void produtos(Atendimento *a) {
     int categoria, produto, quantidade;
     printf("\n--------- PRODUTOS ----------\n");
@@ -219,6 +232,22 @@ void produtos(Atendimento *a) {
         printf("=> Produto registrado com sucesso!\n");
     }
 }
+
+// Função para exibir o comprovante final do atendimento
+void comprovanteFinal(Atendimento *a) {
+    printf("\n--------- COMPROVANTE FINAL ----------\n");
+    printf("Cliente: %s\n", a->cliente.nome);
+    printf("Telefone: %s\n", a->cliente.telefone);
+    printf("Pet: %s (%s, %s)\n", a->pet.nome, a->pet.especie, a->pet.raca);
+    printf("Porte: %s\n", a->pet.porte);
+    printf("\nItens do atendimento:\n");
+    for (int i = 0; i < a->total_itens; i++) {
+        printf("%d - %s | Quantidade: %d | Valor: R$ %.2f\n", i + 1, a->itens[i].desc, a->itens[i].qtd, a->itens[i].val);
+    }
+    printf("\nTotal Geral: R$ %.2f\n", a->total_geral);
+}
+
+//menu principal em função completa, para não ficar repetindo o código no main//
 void menuPrincipal(Atendimento *a) {
     int opcao;
     do {
@@ -242,7 +271,7 @@ void menuPrincipal(Atendimento *a) {
                 produtos(a);
                 break;
             case 4:
-                // Chamar função para gerar comprovante final
+                comprovanteFinal(a);
                 break;
             case 0:
                 printf("Saindo...\n");
@@ -252,4 +281,23 @@ void menuPrincipal(Atendimento *a) {
                 break;
         }
     } while (opcao != 0);
+}
+
+
+// Função principal do programa
+int main() {
+    Atendimento atendimento;
+    limparAtendimento(&atendimento);
+
+    char usuario[30];
+    if (logar(usuario)) {
+        printf("Bem-vindo, %s!\n", usuario);
+        menuPrincipal(&atendimento);
+    } else {
+        printf("Falha no login. Encerrando o programa.\n");
+    }
+
+    menuPrincipal(&atendimento);
+    
+    return 0;
 }
